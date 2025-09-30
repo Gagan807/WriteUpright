@@ -1,66 +1,106 @@
-import React, { useState } from "react";
-import "./Header.css"; // We'll create corresponding CSS
+import { useState, useEffect } from "react";
+import { Menu, X, ChevronDown } from "lucide-react";
+import "./Navbar.css";
 
-function Header() {
-  const [navActive, setNavActive] = useState(false);
+export default function Navbar() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [shrink, setShrink] = useState(false);
+  const [showSubmenu, setShowSubmenu] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  const handleToggle = () => {
-    setNavActive(!navActive);
-  };
+  // shrink header on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      setShrink(window.scrollY > 50);
+    };
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
 
-  const handleLinkClick = () => {
-    setNavActive(false);
-  };
+    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   return (
-    <header className="header">
-        <div className="Container">
-            <nav className="navbar">
-                <a href="#" className="logo">
-                    <img src ="./src/assets/website logo.jpg"/>
-                </a>
-                 <ul className={`nav-links ${navActive ? "active" : ""}`}>
-                    <li>
-                        <a href="#home" onClick={handleLinkClick}>
-                             Home
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#about" onClick={handleLinkClick}>
-                        About
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#services" onClick={handleLinkClick}>
-                        Services
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#contact" onClick={handleLinkClick}>
-                        Contact
-                        </a>
-                    </li>
-                </ul>
-                <div className={`hamburger ${navActive ? "active" : ""}`}onClick={handleToggle}>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                </div>
-            </nav>
+    <header className={`header ${shrink ? "shrink" : ""}`}>
+      {/* Logo */}
+      <div className="logo">MyDbucket</div>
+
+      {/* Hamburger (mobile only) */}
+      <button className="hamburger" onClick={() => setMenuOpen(true)}>
+        <Menu size={22} />
+      </button>
+
+      {/* Desktop Nav */}
+      <nav className="desktop-nav">
+        <a href="#">Home</a>
+        <a href="#">About Us</a>
+
+        {/* Dropdown */}
+        <div
+          className="dropdown"
+          onMouseEnter={() => !isMobile && setShowSubmenu(true)}
+          onMouseLeave={() => !isMobile && setShowSubmenu(false)}
+        >
+          <button
+            className="dropdown-btn"
+            onClick={() => isMobile && setShowSubmenu(!showSubmenu)}
+          >
+            All Services <ChevronDown size={16} />
+          </button>
+          {showSubmenu && (
+            <div className="submenu">
+              <a href="#">Company Profile</a>
+              <a href="#">Website</a>
+              <a href="#">Branding</a>
+              <a href="#">Video Production</a>
+            </div>
+          )}
         </div>
 
+        <a href="#">Projects</a>
+        <a href="#">Blog</a>
+        <a href="#" className="cta">
+          Get a Free Quote
+        </a>
+      </nav>
 
-
-
-
-
-
-
-
-        
-      
+      {/* Slide-out Mobile Menu */}
+      <aside className={`mobile-menu ${menuOpen ? "open" : ""}`}>
+        <button className="close-btn" onClick={() => setMenuOpen(false)}>
+          <X size={26} />
+        </button>
+        <nav className="mobile-links">
+          <a href="#">Home</a>
+          <a href="#">About Us</a>
+          <div>
+            <button
+              className="dropdown-btn"
+              onClick={() => setShowSubmenu(!showSubmenu)}
+            >
+              All Services <ChevronDown size={16} />
+            </button>
+            {showSubmenu && (
+              <div className="submenu mobile-submenu">
+                <a href="#">Company Profile</a>
+                <a href="#">Website</a>
+                <a href="#">Branding</a>
+                <a href="#">Video Production</a>
+              </div>
+            )}
+          </div>
+          <a href="#">Projects</a>
+          <a href="#">Blog</a>
+          <a href="#" className="cta">
+            Get a Free Quote
+          </a>
+        </nav>
+      </aside>
     </header>
   );
 }
-
-export default Header;
